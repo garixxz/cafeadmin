@@ -3,15 +3,17 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
-import { ShoppingBag, Utensils, Clock, Users } from 'lucide-react';
+import { ShoppingBag, Utensils, Clock, Users, Home } from 'lucide-react';
 
 export const OrderType = () => {
   const navigate = useNavigate();
   const { items, total, itemCount } = useCart();
 
-  const handleOrderTypeSelect = (type: 'takeaway' | 'dine-in') => {
+  const handleOrderTypeSelect = (type: 'takeaway' | 'dine-in' | 'room-delivery') => {
     if (type === 'dine-in') {
       navigate('/table-booking');
+    } else if (type === 'room-delivery') {
+      navigate('/room-delivery');
     } else {
       navigate('/checkout', { state: { orderType: 'takeaway' } });
     }
@@ -125,6 +127,33 @@ export const OrderType = () => {
               </div>
               <div className="text-accent font-medium">
                 🪑 Choose your table • Study-friendly environment
+              </div>
+            </div>
+          </Card>
+
+          {/* Room Delivery Option */}
+          <Card 
+            className="food-card cursor-pointer group"
+            onClick={() => handleOrderTypeSelect('room-delivery')}
+          >
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 mx-auto mb-6 bg-primary/20 rounded-full flex items-center justify-center group-hover:bg-primary/30 transition-colors">
+                <Home className="w-10 h-10 text-primary" />
+              </div>
+              <h3 className="font-playfair text-2xl font-semibold mb-3">
+                Room Delivery 🏠
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Get your order delivered directly to your hostel room
+              </p>
+              <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground mb-4">
+                <div className="flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  <span>20-30 mins</span>
+                </div>
+              </div>
+              <div className="text-primary font-medium">
+                🚚 Door-to-door delivery • Perfect for late night study sessions
               </div>
             </div>
           </Card>

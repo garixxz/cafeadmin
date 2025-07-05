@@ -44,7 +44,7 @@ export const Checkout = () => {
   const { items, total, itemCount, clearCart } = useCart();
   
   const orderData = location.state || {};
-  const { orderType, tableNumber, tableSeats } = orderData;
+  const { orderType, tableNumber, tableSeats, deliveryDetails } = orderData;
   
   const [selectedPayment, setSelectedPayment] = useState<string>('upi');
   const [customerName, setCustomerName] = useState('');
@@ -53,7 +53,7 @@ export const Checkout = () => {
   const [tip, setTip] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const deliveryFee = orderType === 'takeaway' ? 0 : 10;
+  const deliveryFee = orderType === 'room-delivery' ? 25 : (orderType === 'dine-in' ? 10 : 0);
   const taxAmount = (total * 0.05); // 5% tax
   const finalTotal = total + deliveryFee + taxAmount + tip;
 
@@ -97,8 +97,10 @@ export const Checkout = () => {
           orderNumber,
           orderType,
           tableNumber,
+          deliveryDetails,
           customerName,
-          estimatedTime: orderType === 'dine-in' ? '15-20 minutes' : '10-15 minutes',
+          estimatedTime: orderType === 'room-delivery' ? '20-30 minutes' :
+                        orderType === 'dine-in' ? '15-20 minutes' : '10-15 minutes',
           total: finalTotal
         }
       });
@@ -146,12 +148,25 @@ export const Checkout = () => {
                   <MapPin className="w-5 h-5 text-accent" />
                   <div>
                     <p className="font-medium">
-                      {orderType === 'dine-in' ? 'Dine In' : 'Takeaway'}
+                      {orderType === 'dine-in' ? 'Dine In' : 
+                       orderType === 'room-delivery' ? 'Room Delivery' : 'Takeaway'}
                     </p>
                     {orderType === 'dine-in' && tableNumber && (
                       <p className="text-sm text-muted-foreground">
                         Table {tableNumber} • {tableSeats} seats
                       </p>
+                    )}
+                    {orderType === 'room-delivery' && deliveryDetails && (
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <p>{deliveryDetails.hostelName}</p>
+                        <p>Room {deliveryDetails.roomNumber}
+                          {deliveryDetails.floorNumber && `, ${deliveryDetails.floorNumber}`}
+                        </p>
+                        {deliveryDetails.landmark && (
+                          <p>Near: {deliveryDetails.landmark}</p>
+                        )}
+                        <p>Phone: {deliveryDetails.phoneNumber}</p>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -160,7 +175,8 @@ export const Checkout = () => {
                   <div>
                     <p className="font-medium">Estimated Time</p>
                     <p className="text-sm text-muted-foreground">
-                      {orderType === 'dine-in' ? '15-20 minutes' : '10-15 minutes'}
+                      {orderType === 'room-delivery' ? '20-30 minutes' :
+                       orderType === 'dine-in' ? '15-20 minutes' : '10-15 minutes'}
                     </p>
                   </div>
                 </div>
@@ -294,6 +310,12 @@ export const Checkout = () => {
                   <span>Subtotal ({itemCount} items)</span>
                   <span>₹{total.toFixed(2)}</span>
                 </div>
+                {orderType === 'room-delivery' && (
+                  <div className="flex justify-between">
+                    <span>Delivery Charge</span>
+                    <span>₹{deliveryFee.toFixed(2)}</span>
+                  </div>
+                )}
                 {orderType === 'dine-in' && (
                   <div className="flex justify-between">
                     <span>Service Charge</span>

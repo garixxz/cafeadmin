@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
-import { Coffee, Utensils, Package, ShoppingBag } from 'lucide-react';
+import { Coffee, Utensils, Package, ShoppingBag, QrCode } from 'lucide-react';
 import heroCafe from '@/assets/hero-cafe.jpg';
 export const Home = () => {
   const navigate = useNavigate();
@@ -57,6 +57,25 @@ export const Home = () => {
             <Button variant="café-outline" size="xl" className="border-/30 text-zinc-50 bg-[#000a0e]/25">
               Today's Offers ✨
             </Button>
+          </div>
+          
+          {/* QR Code Section */}
+          <div className="mt-12 p-6 bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 max-w-md mx-auto">
+            <div className="text-center">
+              <QrCode className="w-16 h-16 mx-auto mb-4 text-white" />
+              <h3 className="font-playfair text-xl font-semibold text-white mb-2">
+                Scan & Order 📱
+              </h3>
+              <p className="text-white/80 text-sm mb-4">
+                Students scan this QR code to start ordering
+              </p>
+              <div className="bg-white p-4 rounded-2xl">
+                <div className="w-32 h-32 mx-auto bg-black flex items-center justify-center rounded-xl">
+                  <QrCode className="w-24 h-24 text-white" />
+                </div>
+                <p className="text-xs text-gray-600 mt-2">QR Code for Menu Access</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

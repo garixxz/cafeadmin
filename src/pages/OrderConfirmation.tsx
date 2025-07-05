@@ -13,6 +13,7 @@ export const OrderConfirmation = () => {
     orderNumber,
     orderType,
     tableNumber,
+    deliveryDetails,
     customerName,
     estimatedTime,
     total
@@ -78,17 +79,25 @@ export const OrderConfirmation = () => {
                 <MapPin className="w-5 h-5 text-accent" />
                 <div>
                   <p className="font-medium">
-                    {orderType === 'dine-in' ? 'Dine In' : 'Takeaway'}
+                    {orderType === 'dine-in' ? 'Dine In' : 
+                     orderType === 'room-delivery' ? 'Room Delivery' : 'Takeaway'}
                   </p>
                   {orderType === 'dine-in' && tableNumber && (
                     <p className="text-sm text-muted-foreground">
                       Table {tableNumber}
                     </p>
                   )}
+                  {orderType === 'room-delivery' && deliveryDetails && (
+                    <div className="text-sm text-muted-foreground">
+                      <p>{deliveryDetails.hostelName}</p>
+                      <p>Room {deliveryDetails.roomNumber}</p>
+                    </div>
+                  )}
                 </div>
               </div>
               <Badge variant="secondary">
-                {orderType === 'dine-in' ? '🍽️' : '🛍️'}
+                {orderType === 'dine-in' ? '🍽️' : 
+                 orderType === 'room-delivery' ? '🏠' : '🛍️'}
               </Badge>
             </div>
 
@@ -101,7 +110,7 @@ export const OrderConfirmation = () => {
                 </div>
               </div>
               <Badge variant="outline" className="text-green-600 border-green-600">
-                Preparing
+                {orderType === 'room-delivery' ? 'Out for Delivery' : 'Preparing'}
               </Badge>
             </div>
 
@@ -138,11 +147,18 @@ export const OrderConfirmation = () => {
         <Card className="p-4 bg-card/50">
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">
-              📱 We'll send you updates via SMS
+              📱 {orderType === 'room-delivery' 
+                    ? "Our delivery person will call you when they arrive" 
+                    : "We'll send you updates via SMS"}
             </p>
             <p className="text-sm text-muted-foreground">
               Need help? Call us at <span className="font-medium">+91 98765 43210</span>
             </p>
+            {orderType === 'room-delivery' && deliveryDetails?.phoneNumber && (
+              <p className="text-xs text-muted-foreground">
+                Delivery contact: {deliveryDetails.phoneNumber}
+              </p>
+            )}
           </div>
         </Card>
 

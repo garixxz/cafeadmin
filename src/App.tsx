@@ -9,6 +9,7 @@ import { Home } from "./pages/Home";
 import { Menu } from "./pages/Menu";
 import { OrderType } from "./pages/OrderType";
 import { TableBooking } from "./pages/TableBooking";
+import { RoomDelivery } from "./pages/RoomDelivery";
 import { Checkout } from "./pages/Checkout";
 import { OrderConfirmation } from "./pages/OrderConfirmation";
 import NotFound from "./pages/NotFound";
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/menu" element={<Menu />} />
             <Route path="/order-type" element={<OrderType />} />
             <Route path="/table-booking" element={<TableBooking />} />
+            <Route path="/room-delivery" element={<RoomDelivery />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
             <Route path="*" element={<NotFound />} />
