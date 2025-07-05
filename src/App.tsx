@@ -12,6 +12,7 @@ import { TableBooking } from "./pages/TableBooking";
 import { RoomDelivery } from "./pages/RoomDelivery";
 import { Checkout } from "./pages/Checkout";
 import { OrderConfirmation } from "./pages/OrderConfirmation";
+import { OrderTracking } from "./pages/OrderTracking";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/room-delivery" element={<RoomDelivery />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/order-tracking" element={<OrderTracking />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <CartSidebar />

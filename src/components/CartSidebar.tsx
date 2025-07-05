@@ -3,7 +3,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
-import { ShoppingBag, Plus, Minus, X } from 'lucide-react';
+import { ShoppingBag, Plus, Minus, X, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const CartSidebar: React.FC = () => {
@@ -38,9 +38,30 @@ export const CartSidebar: React.FC = () => {
             <div className="text-center py-8">
               <ShoppingBag className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
               <p className="text-muted-foreground">Your cart is empty</p>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-muted-foreground mt-1 mb-4">
                 Add some delicious items to get started!
               </p>
+              
+              {/* Quick Action Buttons */}
+              <div className="space-y-2">
+                <Button 
+                  variant="café-outline" 
+                  size="sm"
+                  onClick={() => navigate('/menu')}
+                  className="w-full"
+                >
+                  Browse Menu
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate('/order-tracking')}
+                  className="w-full"
+                >
+                  <Truck className="w-4 h-4 mr-2" />
+                  Track Order
+                </Button>
+              </div>
             </div>
           ) : (
             <>

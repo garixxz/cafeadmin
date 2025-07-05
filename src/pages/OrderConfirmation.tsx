@@ -29,8 +29,8 @@ export const OrderConfirmation = () => {
   };
 
   const handleTrackOrder = () => {
-    // In a real app, this would navigate to order tracking
-    navigate('/');
+    // Navigate to order tracking with order details
+    navigate(`/order-tracking?order=${orderNumber}&type=${orderType}`);
   };
 
   if (!orderNumber) {
