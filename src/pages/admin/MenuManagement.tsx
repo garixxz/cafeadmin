@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,14 +16,14 @@ import {
   Trash2, 
   Upload,
   Filter,
-  Eye,
-  EyeOff
+  Leaf,
+  ChefHat
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const categories = ["Biryani", "Pizza", "Snacks", "Beverages", "Desserts"];
 
-const menuItems = [
+const mockMenuItems = [
   {
     id: 1,
     name: "Chicken Biryani",
@@ -31,6 +32,7 @@ const menuItems = [
     description: "Aromatic basmati rice with tender chicken and spices",
     image: "/api/placeholder/300/200",
     available: true,
+    isVeg: false,
     orders: 24,
   },
   {
@@ -41,6 +43,7 @@ const menuItems = [
     description: "Classic pizza with tomato sauce, mozzarella, and basil",
     image: "/api/placeholder/300/200",
     available: true,
+    isVeg: true,
     orders: 18,
   },
   {
@@ -51,6 +54,7 @@ const menuItems = [
     description: "Crispy fried pastry with spiced potato filling",
     image: "/api/placeholder/300/200",
     available: false,
+    isVeg: true,
     orders: 12,
   },
   {
@@ -61,13 +65,17 @@ const menuItems = [
     description: "Traditional Indian tea with aromatic spices",
     image: "/api/placeholder/300/200",
     available: true,
+    isVeg: true,
     orders: 35,
   },
 ];
 
 export function MenuManagement() {
+  const [menuItems, setMenuItems] = useState(mockMenuItems);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [vegFilter, setVegFilter] = useState("all");
+  const [availabilityFilter, setAvailabilityFilter] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<typeof menuItems[0] | null>(null);
   const { toast } = useToast();
@@ -78,24 +86,76 @@ export function MenuManagement() {
     price: "",
     description: "",
     image: "",
+    isVeg: true,
   });
 
   const filteredItems = menuItems.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesVeg = vegFilter === "all" || 
+      (vegFilter === "veg" && item.isVeg) || 
+      (vegFilter === "non-veg" && !item.isVeg);
+    const matchesAvailability = availabilityFilter === "all" || 
+      (availabilityFilter === "available" && item.available) ||
+      (availabilityFilter === "unavailable" && !item.available);
+    return matchesSearch && matchesCategory && matchesVeg && matchesAvailability;
   });
 
   const handleAddItem = () => {
+    const id = Math.max(...menuItems.map(item => item.id)) + 1;
+    const item = {
+      id,
+      name: newItem.name,
+      category: newItem.category,
+      price: parseInt(newItem.price),
+      description: newItem.description,
+      image: newItem.image || "/api/placeholder/300/200",
+      available: true,
+      isVeg: newItem.isVeg,
+      orders: 0,
+    };
+    
+    setMenuItems([...menuItems, item]);
     toast({
       title: "Item Added",
       description: `${newItem.name} has been added to the menu.`,
     });
+    
     setIsAddDialogOpen(false);
-    setNewItem({ name: "", category: "", price: "", description: "", image: "" });
+    setNewItem({ name: "", category: "", price: "", description: "", image: "", isVeg: true });
+  };
+
+  const handleEditItem = () => {
+    if (!editingItem) return;
+    
+    setMenuItems(menuItems.map(item => 
+      item.id === editingItem.id ? editingItem : item
+    ));
+    
+    toast({
+      title: "Item Updated",
+      description: `${editingItem.name} has been updated successfully.`,
+    });
+    
+    setEditingItem(null);
+  };
+
+  const handleDeleteItem = (itemId: number) => {
+    const item = menuItems.find(i => i.id === itemId);
+    setMenuItems(menuItems.filter(item => item.id !== itemId));
+    
+    toast({
+      title: "Item Deleted",
+      description: `${item?.name} has been removed from the menu.`,
+      variant: "destructive",
+    });
   };
 
   const handleToggleAvailability = (itemId: number) => {
+    setMenuItems(menuItems.map(item => 
+      item.id === itemId ? { ...item, available: !item.available } : item
+    ));
+    
     const item = menuItems.find(i => i.id === itemId);
     toast({
       title: item?.available ? "Item Marked Unavailable" : "Item Marked Available",
@@ -169,6 +229,17 @@ export function MenuManagement() {
                   placeholder="Enter item description"
                 />
               </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isVeg"
+                  checked={newItem.isVeg}
+                  onCheckedChange={(checked) => setNewItem({...newItem, isVeg: checked})}
+                />
+                <Label htmlFor="isVeg" className="flex items-center gap-2">
+                  <Leaf className="h-4 w-4 text-green-600" />
+                  Vegetarian
+                </Label>
+              </div>
               <div>
                 <Label htmlFor="image">Image</Label>
                 <div className="flex gap-2">
@@ -191,11 +262,11 @@ export function MenuManagement() {
         </Dialog>
       </div>
 
-      {/* Filters */}
+      {/* Enhanced Filters */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search menu items..."
@@ -204,25 +275,98 @@ export function MenuManagement() {
                 className="pl-9"
               />
             </div>
-            <div className="flex gap-2">
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-40">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={vegFilter} onValueChange={setVegFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Diet Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Items</SelectItem>
+                <SelectItem value="veg">Vegetarian</SelectItem>
+                <SelectItem value="non-veg">Non-Vegetarian</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Availability" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Items</SelectItem>
+                <SelectItem value="available">Available</SelectItem>
+                <SelectItem value="unavailable">Out of Stock</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" onClick={() => {
+              setSearchTerm("");
+              setSelectedCategory("all");
+              setVegFilter("all");
+              setAvailabilityFilter("all");
+            }}>
+              Clear Filters
+            </Button>
           </div>
         </CardContent>
       </Card>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <ChefHat className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <p className="text-2xl font-bold">{menuItems.length}</p>
+                <p className="text-sm text-muted-foreground">Total Items</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Leaf className="h-4 w-4 text-green-600" />
+              <div>
+                <p className="text-2xl font-bold">{menuItems.filter(item => item.isVeg).length}</p>
+                <p className="text-sm text-muted-foreground">Vegetarian</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-red-500 rounded-full" />
+              <div>
+                <p className="text-2xl font-bold">{menuItems.filter(item => !item.isVeg).length}</p>
+                <p className="text-sm text-muted-foreground">Non-Vegetarian</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-yellow-500 rounded-full" />
+              <div>
+                <p className="text-2xl font-bold">{menuItems.filter(item => !item.available).length}</p>
+                <p className="text-sm text-muted-foreground">Out of Stock</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Menu Items Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -238,12 +382,22 @@ export function MenuManagement() {
                 <Badge variant={item.available ? "default" : "secondary"}>
                   {item.available ? "Available" : "Out of Stock"}
                 </Badge>
+                <Badge variant={item.isVeg ? "default" : "destructive"}>
+                  {item.isVeg ? "Veg" : "Non-Veg"}
+                </Badge>
               </div>
             </div>
             <CardContent className="p-4">
               <div className="flex justify-between items-start mb-2">
                 <div>
-                  <h3 className="font-semibold text-lg">{item.name}</h3>
+                  <h3 className="font-semibold text-lg flex items-center gap-2">
+                    {item.name}
+                    {item.isVeg ? (
+                      <Leaf className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <div className="w-4 h-4 bg-red-500 rounded-full" />
+                    )}
+                  </h3>
                   <Badge variant="outline" className="text-xs">
                     {item.category}
                   </Badge>
@@ -269,11 +423,21 @@ export function MenuManagement() {
               </div>
               
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => setEditingItem(item)}
+                >
                   <Edit className="h-4 w-4 mr-1" />
                   Edit
                 </Button>
-                <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-red-600 hover:text-red-700"
+                  onClick={() => handleDeleteItem(item.id)}
+                >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -281,6 +445,81 @@ export function MenuManagement() {
           </Card>
         ))}
       </div>
+
+      {/* Edit Item Modal */}
+      <Dialog open={!!editingItem} onOpenChange={() => setEditingItem(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Menu Item</DialogTitle>
+          </DialogHeader>
+          {editingItem && (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit-name">Item Name</Label>
+                <Input
+                  id="edit-name"
+                  value={editingItem.name}
+                  onChange={(e) => setEditingItem({...editingItem, name: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-category">Category</Label>
+                <Select 
+                  value={editingItem.category} 
+                  onValueChange={(value) => setEditingItem({...editingItem, category: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-price">Price (₹)</Label>
+                <Input
+                  id="edit-price"
+                  type="number"
+                  value={editingItem.price}
+                  onChange={(e) => setEditingItem({...editingItem, price: parseInt(e.target.value)})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  value={editingItem.description}
+                  onChange={(e) => setEditingItem({...editingItem, description: e.target.value})}
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="edit-isVeg"
+                  checked={editingItem.isVeg}
+                  onCheckedChange={(checked) => setEditingItem({...editingItem, isVeg: checked})}
+                />
+                <Label htmlFor="edit-isVeg" className="flex items-center gap-2">
+                  <Leaf className="h-4 w-4 text-green-600" />
+                  Vegetarian
+                </Label>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleEditItem} className="flex-1">
+                  Save Changes
+                </Button>
+                <Button variant="outline" onClick={() => setEditingItem(null)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {filteredItems.length === 0 && (
         <Card>
