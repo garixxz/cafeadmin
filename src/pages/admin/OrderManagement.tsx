@@ -51,7 +51,7 @@ const mockOrders = [
     email: "priya@example.com",
     amount: 280,
     status: "ready",
-    type: "takeaway",
+    type: "delivery",
     tableNumber: null,
     items: [
       { name: "Margherita Pizza", quantity: 1, price: 249, isVeg: true },
@@ -60,7 +60,11 @@ const mockOrders = [
     timestamp: "2024-01-15T10:25:00Z",
     paymentStatus: "paid",
     paymentMethod: "Card",
-    address: null,
+    address: {
+      hostelNumber: "B",
+      roomNumber: "303",
+      landmark: "Near Basketball Court",
+    },
   },
   {
     id: "ORD-003",
@@ -250,7 +254,6 @@ export function OrderManagement() {
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="dine-in">Dine-in</SelectItem>
-                <SelectItem value="takeaway">Takeaway</SelectItem>
                 <SelectItem value="delivery">Delivery</SelectItem>
               </SelectContent>
             </Select>

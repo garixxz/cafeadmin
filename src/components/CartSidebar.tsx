@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -124,7 +125,7 @@ export const CartSidebar: React.FC = () => {
                   onClick={handleCheckout}
                   disabled={items.length === 0}
                 >
-                  Proceed to Checkout
+                  Choose Dining Option
                 </Button>
               </div>
             </>

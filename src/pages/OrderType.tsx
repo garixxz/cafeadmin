@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -9,13 +10,11 @@ export const OrderType = () => {
   const navigate = useNavigate();
   const { items, total, itemCount } = useCart();
 
-  const handleOrderTypeSelect = (type: 'takeaway' | 'dine-in' | 'room-delivery') => {
+  const handleOrderTypeSelect = (type: 'dine-in' | 'room-delivery') => {
     if (type === 'dine-in') {
       navigate('/table-booking');
     } else if (type === 'room-delivery') {
       navigate('/room-delivery');
-    } else {
-      navigate('/checkout', { state: { orderType: 'takeaway' } });
     }
   };
 
@@ -73,33 +72,6 @@ export const OrderType = () => {
 
         {/* Order Type Options */}
         <div className="space-y-4">
-          {/* Takeaway Option */}
-          <Card 
-            className="food-card cursor-pointer group"
-            onClick={() => handleOrderTypeSelect('takeaway')}
-          >
-            <div className="p-8 text-center">
-              <div className="w-20 h-20 mx-auto mb-6 bg-secondary/20 rounded-full flex items-center justify-center group-hover:bg-secondary/30 transition-colors">
-                <ShoppingBag className="w-10 h-10 text-secondary-foreground" />
-              </div>
-              <h3 className="font-playfair text-2xl font-semibold mb-3">
-                Takeaway 🛍️
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Perfect for grabbing your order and heading to class
-              </p>
-              <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground mb-4">
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  <span>5-10 mins</span>
-                </div>
-              </div>
-              <div className="text-green-600 font-medium">
-                ✅ Ready to go • No table booking needed
-              </div>
-            </div>
-          </Card>
-
           {/* Dine-In Option */}
           <Card 
             className="food-card cursor-pointer group"
