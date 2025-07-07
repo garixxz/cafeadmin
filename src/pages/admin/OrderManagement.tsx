@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -158,17 +157,23 @@ export function OrderManagement() {
   };
 
   const updateOrderStatus = (orderId: string, newStatus: string) => {
-    setOrders(orders.map(order => 
+    const updatedOrders = orders.map(order => 
       order.id === orderId ? { ...order, status: newStatus } : order
-    ));
+    );
+    setOrders(updatedOrders);
     
     toast({
       title: "Order Status Updated",
       description: `Order ${orderId} has been marked as ${getStatusText(newStatus)}.`,
     });
 
+    // Show delivery sharing modal when marking delivery orders as ready
     if (newStatus === "ready") {
-      const order = orders.find(o => o.id === orderId);
+      const order = updatedOrders.find(o => o.id === orderId);
+      console.log("Order found:", order);
+      console.log("Order type:", order?.type);
+      console.log("Setting selectedOrder for delivery sharing");
+      
       if (order && order.type === "delivery") {
         setSelectedOrder(order);
       }
@@ -634,7 +639,10 @@ export function OrderManagement() {
       </Dialog>
 
       {/* Ready Order Delivery Modal */}
-      <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+      <Dialog open={!!selectedOrder} onOpenChange={() => {
+        console.log("Closing delivery sharing modal");
+        setSelectedOrder(null);
+      }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -684,17 +692,23 @@ export function OrderManagement() {
               <Separator />
 
               <div>
-                <h3 className="font-semibold mb-3">Share Order Details</h3>
+                <h3 className="font-semibold mb-3">Share with Delivery Person</h3>
                 <div className="grid gap-2">
                   <Button
-                    onClick={() => shareViaWhatsApp(selectedOrder)}
+                    onClick={() => {
+                      console.log("Sharing via WhatsApp");
+                      shareViaWhatsApp(selectedOrder);
+                    }}
                     className="w-full bg-green-600 hover:bg-green-700"
                   >
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Share via WhatsApp
                   </Button>
                   <Button
-                    onClick={() => shareViaSMS(selectedOrder)}
+                    onClick={() => {
+                      console.log("Sharing via SMS");
+                      shareViaSMS(selectedOrder);
+                    }}
                     variant="outline"
                     className="w-full"
                   >
@@ -702,7 +716,10 @@ export function OrderManagement() {
                     Send SMS
                   </Button>
                   <Button
-                    onClick={() => copyOrderDetails(selectedOrder)}
+                    onClick={() => {
+                      console.log("Copying order details");
+                      copyOrderDetails(selectedOrder);
+                    }}
                     variant="outline"
                     className="w-full"
                   >
