@@ -14,6 +14,11 @@ import { Checkout } from "./pages/Checkout";
 import { OrderConfirmation } from "./pages/OrderConfirmation";
 import { OrderTracking } from "./pages/OrderTracking";
 import NotFound from "./pages/NotFound";
+import { AdminLayout } from "./pages/admin/AdminLayout";
+import { Dashboard } from "./pages/admin/Dashboard";
+import { MenuManagement } from "./pages/admin/MenuManagement";
+import { OrderManagement } from "./pages/admin/OrderManagement";
+import { Reports } from "./pages/admin/Reports";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +38,15 @@ const App = () => (
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
             <Route path="/order-tracking" element={<OrderTracking />} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="menu" element={<MenuManagement />} />
+              <Route path="orders" element={<OrderManagement />} />
+              <Route path="reports" element={<Reports />} />
+            </Route>
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
           <CartSidebar />
