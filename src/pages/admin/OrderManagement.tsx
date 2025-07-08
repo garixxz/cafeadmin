@@ -31,7 +31,7 @@ const mockOrders = [
     phone: "+91 9876543210",
     email: "arjun@example.com",
     amount: 450,
-    status: "preparing",
+    status: "pending",
     type: "dine-in",
     tableNumber: "T-05",
     items: [
@@ -40,6 +40,7 @@ const mockOrders = [
       { name: "Raita", quantity: 1, price: 101, isVeg: true },
     ],
     timestamp: "2024-01-15T10:30:00Z",
+    date: "2024-01-15",
     paymentStatus: "paid",
     paymentMethod: "UPI",
     address: null,
@@ -50,7 +51,7 @@ const mockOrders = [
     phone: "+91 9876543211",
     email: "priya@example.com",
     amount: 280,
-    status: "ready",
+    status: "pending",
     type: "delivery",
     tableNumber: null,
     items: [
@@ -58,6 +59,7 @@ const mockOrders = [
       { name: "Coke", quantity: 1, price: 31, isVeg: true },
     ],
     timestamp: "2024-01-15T10:25:00Z",
+    date: "2024-01-15",
     paymentStatus: "paid",
     paymentMethod: "Card",
     address: {
@@ -80,6 +82,7 @@ const mockOrders = [
       { name: "Samosa", quantity: 2, price: 22, isVeg: true },
     ],
     timestamp: "2024-01-15T09:45:00Z",
+    date: "2024-01-14",
     paymentStatus: "paid",
     paymentMethod: "UPI",
     address: {
@@ -103,6 +106,7 @@ const mockOrders = [
       { name: "Cold Coffee", quantity: 1, price: 42, isVeg: true },
     ],
     timestamp: "2024-01-15T10:35:00Z",
+    date: "2024-01-15",
     paymentStatus: "paid",
     paymentMethod: "Wallet",
     address: null,
@@ -171,14 +175,10 @@ export function OrderManagement() {
       description: `Order ${orderId} has been marked as ${getStatusText(newStatus)}.`,
     });
 
-    // Show delivery sharing modal when marking delivery orders as ready
+    // Show delivery sharing modal when marking orders as ready
     if (newStatus === "ready") {
       const order = updatedOrders.find(o => o.id === orderId);
-      console.log("Order found:", order);
-      console.log("Order type:", order?.type);
-      console.log("Setting selectedOrder for delivery sharing");
-      
-      if (order && order.type === "delivery") {
+      if (order) {
         setSelectedOrder(order);
       }
     }
@@ -294,7 +294,7 @@ export function OrderManagement() {
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Amount</TableHead>
-                <TableHead>Time</TableHead>
+                <TableHead>Date</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -337,9 +337,12 @@ export function OrderManagement() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm">
-                      {new Date(order.timestamp).toLocaleTimeString()}
-                    </span>
+                    <div>
+                      <p className="text-sm font-medium">{order.date}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(order.timestamp).toLocaleTimeString()}
+                      </p>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
@@ -360,10 +363,10 @@ export function OrderManagement() {
                       {order.status !== "delivered" && (
                         <Button
                           size="sm"
-                          onClick={() => updateOrderStatus(order.id, getNextStatus(order.status))}
+                          onClick={() => updateOrderStatus(order.id, "ready")}
                           className="bg-emerald-600 hover:bg-emerald-700"
                         >
-                          Mark {getStatusText(getNextStatus(order.status))}
+                          Mark Ready
                         </Button>
                       )}
                     </div>

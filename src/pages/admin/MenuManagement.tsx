@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-const categories = ["Biryani", "Pizza", "Snacks", "Beverages", "Desserts"];
+const defaultCategories = ["Biryani", "Pizza", "Snacks", "Beverages", "Desserts"];
 
 const mockMenuItems = [
   {
@@ -30,7 +30,7 @@ const mockMenuItems = [
     category: "Biryani",
     price: 299,
     description: "Aromatic basmati rice with tender chicken and spices",
-    image: "/api/placeholder/300/200",
+    image: "/src/assets/chicken-biryani.jpg",
     available: true,
     isVeg: false,
     orders: 24,
@@ -41,7 +41,7 @@ const mockMenuItems = [
     category: "Pizza", 
     price: 249,
     description: "Classic pizza with tomato sauce, mozzarella, and basil",
-    image: "/api/placeholder/300/200",
+    image: "/src/assets/margherita-pizza.jpg",
     available: true,
     isVeg: true,
     orders: 18,
@@ -52,7 +52,7 @@ const mockMenuItems = [
     category: "Snacks",
     price: 45,
     description: "Crispy fried pastry with spiced potato filling",
-    image: "/api/placeholder/300/200",
+    image: "/src/assets/samosa.jpg",
     available: false,
     isVeg: true,
     orders: 12,
@@ -63,7 +63,7 @@ const mockMenuItems = [
     category: "Beverages",
     price: 25,
     description: "Traditional Indian tea with aromatic spices",
-    image: "/api/placeholder/300/200",
+    image: "/src/assets/masala-chai.jpg",
     available: true,
     isVeg: true,
     orders: 35,
@@ -72,12 +72,15 @@ const mockMenuItems = [
 
 export function MenuManagement() {
   const [menuItems, setMenuItems] = useState(mockMenuItems);
+  const [categories, setCategories] = useState(defaultCategories);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [vegFilter, setVegFilter] = useState("all");
   const [availabilityFilter, setAvailabilityFilter] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<typeof menuItems[0] | null>(null);
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
   const { toast } = useToast();
 
   const [newItem, setNewItem] = useState({
@@ -163,6 +166,18 @@ export function MenuManagement() {
     });
   };
 
+  const handleAddCategory = () => {
+    if (newCategoryName.trim() && !categories.includes(newCategoryName.trim())) {
+      setCategories([...categories, newCategoryName.trim()]);
+      toast({
+        title: "Category Added",
+        description: `${newCategoryName} has been added to categories.`,
+      });
+      setNewCategoryName("");
+      setIsAddCategoryOpen(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -197,18 +212,28 @@ export function MenuManagement() {
               </div>
               <div>
                 <Label htmlFor="category">Category</Label>
-                <Select value={newItem.category} onValueChange={(value) => setNewItem({...newItem, category: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2">
+                  <Select value={newItem.category} onValueChange={(value) => setNewItem({...newItem, category: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="icon"
+                    onClick={() => setIsAddCategoryOpen(true)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               <div>
                 <Label htmlFor="price">Price (₹)</Label>
@@ -236,8 +261,17 @@ export function MenuManagement() {
                   onCheckedChange={(checked) => setNewItem({...newItem, isVeg: checked})}
                 />
                 <Label htmlFor="isVeg" className="flex items-center gap-2">
-                  <Leaf className="h-4 w-4 text-green-600" />
-                  Vegetarian
+                  {newItem.isVeg ? (
+                    <>
+                      <Leaf className="h-4 w-4 text-green-600" />
+                      Vegetarian
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-4 h-4 bg-red-500 rounded-full" />
+                      Non-Vegetarian
+                    </>
+                  )}
                 </Label>
               </div>
               <div>
@@ -504,8 +538,17 @@ export function MenuManagement() {
                   onCheckedChange={(checked) => setEditingItem({...editingItem, isVeg: checked})}
                 />
                 <Label htmlFor="edit-isVeg" className="flex items-center gap-2">
-                  <Leaf className="h-4 w-4 text-green-600" />
-                  Vegetarian
+                  {editingItem.isVeg ? (
+                    <>
+                      <Leaf className="h-4 w-4 text-green-600" />
+                      Vegetarian
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-4 h-4 bg-red-500 rounded-full" />
+                      Non-Vegetarian
+                    </>
+                  )}
                 </Label>
               </div>
               <div className="flex gap-2">
@@ -528,6 +571,37 @@ export function MenuManagement() {
           </CardContent>
         </Card>
       )}
+
+      {/* Add Category Dialog */}
+      <Dialog open={isAddCategoryOpen} onOpenChange={setIsAddCategoryOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Category</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="categoryName">Category Name</Label>
+              <Input
+                id="categoryName"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="Enter category name"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={handleAddCategory} className="flex-1">
+                Add Category
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setIsAddCategoryOpen(false);
+                setNewCategoryName("");
+              }}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
