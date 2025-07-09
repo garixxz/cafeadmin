@@ -165,10 +165,10 @@ export function OrderManagement() {
       description: `Order ${orderId} has been marked as ${getStatusText(newStatus)}.`,
     });
 
-    // Show delivery sharing modal when marking orders as ready
+    // Show delivery sharing modal ONLY when marking DELIVERY orders as ready
     if (newStatus === "ready") {
       const order = updatedOrders.find(o => o.id === orderId);
-      if (order) {
+      if (order && order.type === "delivery") {
         setSelectedOrder(order);
       }
     }
@@ -203,6 +203,18 @@ export function OrderManagement() {
   };
 
   const handleCloseDeliveryModal = () => {
+    if (selectedOrder) {
+      // Update the order status to "delivered" when closing the modal
+      const updatedOrders = orders.map(order => 
+        order.id === selectedOrder.id ? { ...order, status: "delivered" } : order
+      );
+      setOrders(updatedOrders);
+      
+      toast({
+        title: "Order Status Updated",
+        description: `Order ${selectedOrder.id} has been marked as Delivered.`,
+      });
+    }
     setSelectedOrder(null);
   };
 
@@ -363,7 +375,7 @@ export function OrderManagement() {
                             Mark Ready
                           </Button>
                         )}
-                        {order.status === "ready" && (
+                        {order.status === "ready" && order.type === "dine-in" && (
                           <Button
                             size="sm"
                             onClick={() => updateOrderStatus(order.id, "delivered")}
