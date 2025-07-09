@@ -1,7 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowUp, ArrowDown, DollarSign, ShoppingCart, Users, TrendingUp, Clock, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowUp, ArrowDown, DollarSign, ShoppingCart, Users, TrendingUp, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 const stats = [{
   name: "Today's Revenue",
   value: "₹12,450",
@@ -73,7 +75,52 @@ const topItems = [{
   orders: 16,
   revenue: "₹1,440"
 }];
+
+const pendingOrders = [
+  {
+    id: "#ORD-005",
+    customer: "Rahul Singh",
+    amount: "₹520",
+    status: "pending",
+    type: "dine-in",
+    time: "5 mins ago",
+    items: ["Chicken Biryani", "Masala Chai"],
+    tableNumber: "Table 5"
+  },
+  {
+    id: "#ORD-006",
+    customer: "Meera Joshi",
+    amount: "₹680",
+    status: "pending",
+    type: "delivery",
+    time: "8 mins ago",
+    items: ["Margherita Pizza", "Veg Sandwich"],
+    deliveryAddress: "Room 203, Hotel Blue Moon"
+  },
+  {
+    id: "#ORD-007",
+    customer: "Amit Verma",
+    amount: "₹320",
+    status: "pending",
+    type: "dine-in",
+    time: "10 mins ago",
+    items: ["Samosa (2)", "Masala Chai"],
+    tableNumber: "Table 12"
+  },
+  {
+    id: "#ORD-008",
+    customer: "Kavya Reddy",
+    amount: "₹450",
+    status: "pending",
+    type: "delivery",
+    time: "12 mins ago",
+    items: ["Chicken Biryani", "Croissant"],
+    deliveryAddress: "Room 105, Sunrise Resort"
+  }
+];
+
 export function Dashboard() {
+  const navigate = useNavigate();
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
@@ -102,6 +149,11 @@ export function Dashboard() {
         return <Badge variant="outline">{status}</Badge>;
     }
   };
+
+  const handleOrderClick = (orderId: string) => {
+    navigate('/admin/orders', { state: { highlightOrder: orderId } });
+  };
+
   return <div className="space-y-6">
       {/* Page Header */}
       <div>
@@ -166,10 +218,88 @@ export function Dashboard() {
         </Card>
 
         {/* Top Selling Items */}
-        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Top Selling Items
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {topItems.map((item, index) => (
+                <div key={item.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-muted-foreground">#{index + 1}</span>
+                    <div>
+                      <p className="font-medium">{item.name}</p>
+                      <p className="text-sm text-muted-foreground">{item.orders} orders</p>
+                    </div>
+                  </div>
+                  <span className="font-medium">{item.revenue}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Quick Actions */}
-      
+      {/* Pending Orders Section */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-yellow-500" />
+            Pending Orders
+          </CardTitle>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/admin/orders')}
+          >
+            View All Orders
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            {pendingOrders.map(order => (
+              <div 
+                key={order.id} 
+                className="p-4 border rounded-lg hover:bg-muted/30 cursor-pointer transition-colors"
+                onClick={() => handleOrderClick(order.id)}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                      Pending
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {order.type === 'dine-in' ? 'Dine-in' : 'Delivery'}
+                    </Badge>
+                  </div>
+                  <span className="text-sm text-muted-foreground">{order.time}</span>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">{order.id}</h4>
+                    <span className="font-semibold">{order.amount}</span>
+                  </div>
+                  
+                  <p className="text-sm text-muted-foreground">{order.customer}</p>
+                  
+                  <div className="text-sm">
+                    <p className="text-muted-foreground">Items: {order.items.join(", ")}</p>
+                    {order.type === 'dine-in' ? (
+                      <p className="text-muted-foreground">{order.tableNumber}</p>
+                    ) : (
+                      <p className="text-muted-foreground">{order.deliveryAddress}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>;
 }
