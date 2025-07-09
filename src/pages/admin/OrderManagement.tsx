@@ -20,7 +20,8 @@ import {
   Edit,
   Eye,
   Utensils,
-  Building
+  Building,
+  Package
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -51,7 +52,7 @@ const mockOrders = [
     phone: "+91 9876543211",
     email: "priya@example.com",
     amount: 280,
-    status: "pending",
+    status: "ready",
     type: "delivery",
     tableNumber: null,
     items: [
@@ -138,7 +139,6 @@ export function OrderManagement() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending": return "bg-yellow-500 hover:bg-yellow-600";
-      case "preparing": return "bg-blue-500 hover:bg-blue-600";
       case "ready": return "bg-green-500 hover:bg-green-600";
       case "delivered": return "bg-gray-500 hover:bg-gray-600";
       default: return "bg-gray-500 hover:bg-gray-600";
@@ -148,19 +148,9 @@ export function OrderManagement() {
   const getStatusText = (status: string) => {
     switch (status) {
       case "pending": return "Pending";
-      case "preparing": return "Preparing";
       case "ready": return "Ready";
       case "delivered": return "Delivered";
       default: return status;
-    }
-  };
-
-  const getNextStatus = (currentStatus: string) => {
-    switch (currentStatus) {
-      case "pending": return "preparing";
-      case "preparing": return "ready";
-      case "ready": return "delivered";
-      default: return currentStatus;
     }
   };
 
@@ -212,6 +202,10 @@ export function OrderManagement() {
     });
   };
 
+  const handleCloseDeliveryModal = () => {
+    setSelectedOrder(null);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -242,7 +236,6 @@ export function OrderManagement() {
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="preparing">Preparing</SelectItem>
                 <SelectItem value="ready">Ready</SelectItem>
                 <SelectItem value="delivered">Delivered</SelectItem>
               </SelectContent>
@@ -286,95 +279,116 @@ export function OrderManagement() {
           <CardTitle>Orders ({filteredOrders.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.id}</TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{order.customer}</p>
-                      <p className="text-sm text-muted-foreground">{order.phone}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">
-                        {order.type.replace('-', ' ')}
-                      </Badge>
-                      {order.type === "dine-in" && (
-                        <span className="text-sm text-muted-foreground">
-                          {order.tableNumber}
-                        </span>
-                      )}
-                      {order.type === "delivery" && (
-                        <span className="text-sm text-muted-foreground">
-                          H{order.address?.hostelNumber}-{order.address?.roomNumber}
-                        </span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(order.status)}>
-                      {getStatusText(order.status)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-semibold text-emerald-600">₹{order.amount}</p>
-                      <p className="text-xs text-muted-foreground">{order.paymentMethod}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="text-sm font-medium">{order.date}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(order.timestamp).toLocaleTimeString()}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setViewDetailsOrder(order)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setEditingOrder(order)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      {order.status !== "delivered" && (
-                        <Button
-                          size="sm"
-                          onClick={() => updateOrderStatus(order.id, "ready")}
-                          className="bg-emerald-600 hover:bg-emerald-700"
-                        >
-                          Mark Ready
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
+          {filteredOrders.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Order ID</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredOrders.map((order) => (
+                  <TableRow key={order.id}>
+                    <TableCell className="font-medium">{order.id}</TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{order.customer}</p>
+                        <p className="text-sm text-muted-foreground">{order.phone}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">
+                          {order.type.replace('-', ' ')}
+                        </Badge>
+                        {order.type === "dine-in" && (
+                          <span className="text-sm text-muted-foreground">
+                            {order.tableNumber}
+                          </span>
+                        )}
+                        {order.type === "delivery" && (
+                          <span className="text-sm text-muted-foreground">
+                            H{order.address?.hostelNumber}-{order.address?.roomNumber}
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(order.status)}>
+                        {getStatusText(order.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-semibold text-emerald-600">₹{order.amount}</p>
+                        <p className="text-xs text-muted-foreground">{order.paymentMethod}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="text-sm font-medium">{order.date}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(order.timestamp).toLocaleTimeString()}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setViewDetailsOrder(order)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditingOrder(order)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        {order.status === "pending" && (
+                          <Button
+                            size="sm"
+                            onClick={() => updateOrderStatus(order.id, "ready")}
+                            className="bg-emerald-600 hover:bg-emerald-700"
+                          >
+                            Mark Ready
+                          </Button>
+                        )}
+                        {order.status === "ready" && (
+                          <Button
+                            size="sm"
+                            onClick={() => updateOrderStatus(order.id, "delivered")}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            Mark Delivered
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="w-24 h-24 bg-muted/30 rounded-full flex items-center justify-center mb-4">
+                <Package className="h-12 w-12 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No Orders Found</h3>
+              <p className="text-muted-foreground max-w-md">
+                No orders match your current filters. Try adjusting your search criteria or clear all filters to see all orders.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -577,7 +591,6 @@ export function OrderManagement() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="preparing">Preparing</SelectItem>
                     <SelectItem value="ready">Ready</SelectItem>
                     <SelectItem value="delivered">Delivered</SelectItem>
                   </SelectContent>
@@ -645,10 +658,7 @@ export function OrderManagement() {
       </Dialog>
 
       {/* Ready Order Delivery Modal */}
-      <Dialog open={!!selectedOrder} onOpenChange={() => {
-        console.log("Closing delivery sharing modal");
-        setSelectedOrder(null);
-      }}>
+      <Dialog open={!!selectedOrder} onOpenChange={handleCloseDeliveryModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -702,7 +712,6 @@ export function OrderManagement() {
                 <div className="grid gap-2">
                   <Button
                     onClick={() => {
-                      console.log("Sharing via WhatsApp");
                       shareViaWhatsApp(selectedOrder);
                     }}
                     className="w-full bg-green-600 hover:bg-green-700"
@@ -712,7 +721,6 @@ export function OrderManagement() {
                   </Button>
                   <Button
                     onClick={() => {
-                      console.log("Sharing via SMS");
                       shareViaSMS(selectedOrder);
                     }}
                     variant="outline"
@@ -723,7 +731,6 @@ export function OrderManagement() {
                   </Button>
                   <Button
                     onClick={() => {
-                      console.log("Copying order details");
                       copyOrderDetails(selectedOrder);
                     }}
                     variant="outline"
@@ -738,14 +745,6 @@ export function OrderManagement() {
           )}
         </DialogContent>
       </Dialog>
-
-      {filteredOrders.length === 0 && (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <p className="text-muted-foreground">No orders found matching your criteria.</p>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
