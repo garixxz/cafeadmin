@@ -76,60 +76,58 @@ const topItems = [{
   orders: 16,
   revenue: "₹1,440"
 }];
-
-const pendingOrders = [
-  {
-    id: "#ORD-005",
-    customer: "Rahul Singh",
-    amount: "₹520",
-    status: "pending",
-    type: "dine-in",
-    time: "5 mins ago",
-    items: ["Chicken Biryani", "Masala Chai"],
-    tableNumber: "Table 5"
-  },
-  {
-    id: "#ORD-006",
-    customer: "Meera Joshi",
-    amount: "₹680",
-    status: "pending",
-    type: "delivery",
-    time: "8 mins ago",
-    items: ["Margherita Pizza", "Veg Sandwich"],
-    deliveryAddress: "Room 203, Hotel Blue Moon"
-  },
-  {
-    id: "#ORD-007",
-    customer: "Amit Verma",
-    amount: "₹320",
-    status: "pending",
-    type: "dine-in",
-    time: "10 mins ago",
-    items: ["Samosa (2)", "Masala Chai"],
-    tableNumber: "Table 12"
-  },
-  {
-    id: "#ORD-008",
-    customer: "Kavya Reddy",
-    amount: "₹450",
-    status: "pending",
-    type: "delivery",
-    time: "12 mins ago",
-    items: ["Chicken Biryani", "Croissant"],
-    deliveryAddress: "Room 105, Sunrise Resort"
-  }
-];
-
+const pendingOrders = [{
+  id: "#ORD-005",
+  customer: "Rahul Singh",
+  amount: "₹520",
+  status: "pending",
+  type: "dine-in",
+  time: "5 mins ago",
+  items: ["Chicken Biryani", "Masala Chai"],
+  tableNumber: "Table 5"
+}, {
+  id: "#ORD-006",
+  customer: "Meera Joshi",
+  amount: "₹680",
+  status: "pending",
+  type: "delivery",
+  time: "8 mins ago",
+  items: ["Margherita Pizza", "Veg Sandwich"],
+  deliveryAddress: "Room 203, Hotel Blue Moon"
+}, {
+  id: "#ORD-007",
+  customer: "Amit Verma",
+  amount: "₹320",
+  status: "pending",
+  type: "dine-in",
+  time: "10 mins ago",
+  items: ["Samosa (2)", "Masala Chai"],
+  tableNumber: "Table 12"
+}, {
+  id: "#ORD-008",
+  customer: "Kavya Reddy",
+  amount: "₹450",
+  status: "pending",
+  type: "delivery",
+  time: "12 mins ago",
+  items: ["Chicken Biryani", "Croissant"],
+  deliveryAddress: "Room 105, Sunrise Resort"
+}];
 export function Dashboard() {
   const navigate = useNavigate();
-  
+
   // Separate pending orders by type
-  const { dineInOrders, deliveryOrders } = useMemo(() => {
+  const {
+    dineInOrders,
+    deliveryOrders
+  } = useMemo(() => {
     const dineIn = pendingOrders.filter(order => order.type === 'dine-in');
     const delivery = pendingOrders.filter(order => order.type === 'delivery');
-    return { dineInOrders: dineIn, deliveryOrders: delivery };
+    return {
+      dineInOrders: dineIn,
+      deliveryOrders: delivery
+    };
   }, []);
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
@@ -144,7 +142,6 @@ export function Dashboard() {
         return "bg-gray-500";
     }
   };
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
@@ -159,16 +156,18 @@ export function Dashboard() {
         return <Badge variant="outline">{status}</Badge>;
     }
   };
-
   const handleOrderClick = (orderId: string) => {
-    navigate('/admin/orders', { state: { highlightOrder: orderId } });
+    navigate('/admin/orders', {
+      state: {
+        highlightOrder: orderId
+      }
+    });
   };
-
-  const PendingOrderCard = ({ order }: { order: any }) => (
-    <div 
-      className="p-4 border rounded-lg hover:bg-muted/30 cursor-pointer transition-all duration-200 hover:shadow-md animate-fade-in"
-      onClick={() => handleOrderClick(order.id)}
-    >
+  const PendingOrderCard = ({
+    order
+  }: {
+    order: any;
+  }) => <div className="p-4 border rounded-lg hover:bg-muted/30 cursor-pointer transition-all duration-200 hover:shadow-md animate-fade-in" onClick={() => handleOrderClick(order.id)}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           {getStatusBadge(order.status)}
@@ -191,22 +190,15 @@ export function Dashboard() {
           <p className="text-muted-foreground">
             <span className="font-medium">Items:</span> {order.items.join(", ")}
           </p>
-          {order.type === 'dine-in' ? (
-            <p className="text-muted-foreground">
+          {order.type === 'dine-in' ? <p className="text-muted-foreground">
               <span className="font-medium">Table:</span> {order.tableNumber}
-            </p>
-          ) : (
-            <p className="text-muted-foreground">
+            </p> : <p className="text-muted-foreground">
               <span className="font-medium">Address:</span> {order.deliveryAddress}
-            </p>
-          )}
+            </p>}
         </div>
       </div>
-    </div>
-  );
-
-  return (
-    <div className="space-y-6 animate-fade-in">
+    </div>;
+  return <div className="space-y-6 animate-fade-in">
       {/* Page Header */}
       <div className="border-b border-border pb-4">
         <h1 className="text-3xl font-playfair font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -219,8 +211,9 @@ export function Dashboard() {
 
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, index) => (
-          <Card key={stat.name} className="hover:shadow-soft transition-all duration-200 hover:scale-105 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+        {stats.map((stat, index) => <Card key={stat.name} className="hover:shadow-soft transition-all duration-200 hover:scale-105 animate-fade-in" style={{
+        animationDelay: `${index * 100}ms`
+      }}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 {stat.name}
@@ -232,22 +225,17 @@ export function Dashboard() {
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
               <div className="flex items-center text-xs mt-1">
-                {stat.changeType === "positive" ? (
-                  <ArrowUp className="h-3 w-3 text-green-500 mr-1" />
-                ) : (
-                  <ArrowDown className="h-3 w-3 text-red-500 mr-1" />
-                )}
+                {stat.changeType === "positive" ? <ArrowUp className="h-3 w-3 text-green-500 mr-1" /> : <ArrowDown className="h-3 w-3 text-red-500 mr-1" />}
                 <span className={stat.changeType === "positive" ? "text-green-500" : "text-red-500"}>
                   {stat.change}
                 </span>
                 <span className="text-muted-foreground ml-1">from yesterday</span>
               </div>
             </CardContent>
-          </Card>
-        ))}
+          </Card>)}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3 px-0">
         {/* Recent Orders */}
         <Card className="lg:col-span-2 animate-fade-in">
           <CardHeader>
@@ -256,15 +244,11 @@ export function Dashboard() {
               Recent Orders
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="mx-0 px-0 rounded-none">
             <div className="space-y-3">
-              {recentOrders.map((order, index) => (
-                <div 
-                  key={order.id} 
-                  className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer animate-fade-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                  onClick={() => handleOrderClick(order.id)}
-                >
+              {recentOrders.map((order, index) => <div key={order.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer animate-fade-in" style={{
+              animationDelay: `${index * 50}ms`
+            }} onClick={() => handleOrderClick(order.id)}>
                   <div className="flex items-center gap-3">
                     <div className={`w-3 h-3 rounded-full ${getStatusColor(order.status)}`} />
                     <div>
@@ -280,43 +264,13 @@ export function Dashboard() {
                     {getStatusBadge(order.status)}
                     <span className="text-xs text-muted-foreground">{order.time}</span>
                   </div>
-                </div>
-              ))}
+                </div>)}
             </div>
           </CardContent>
         </Card>
 
         {/* Top Selling Items */}
-        <Card className="animate-fade-in">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              Top Selling Items
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {topItems.map((item, index) => (
-                <div 
-                  key={item.name} 
-                  className="flex items-center justify-between hover:bg-muted/30 p-2 rounded-lg transition-colors animate-fade-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-xs font-bold text-primary">#{index + 1}</span>
-                    </div>
-                    <div>
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-muted-foreground">{item.orders} orders</p>
-                    </div>
-                  </div>
-                  <span className="font-semibold text-primary">{item.revenue}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        
       </div>
 
       {/* Pending Orders Section - Two Columns */}
@@ -331,29 +285,21 @@ export function Dashboard() {
                 {dineInOrders.length}
               </Badge>
             </CardTitle>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => navigate('/admin/orders?filter=dine-in')}
-            >
+            <Button variant="outline" size="sm" onClick={() => navigate('/admin/orders?filter=dine-in')}>
               View All
             </Button>
           </CardHeader>
           <CardContent>
-            {dineInOrders.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+            {dineInOrders.length === 0 ? <div className="text-center py-8 text-muted-foreground">
                 <Utensils className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>No pending dine-in orders</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {dineInOrders.map((order, index) => (
-                  <div key={order.id} style={{ animationDelay: `${index * 100}ms` }}>
+              </div> : <div className="space-y-4">
+                {dineInOrders.map((order, index) => <div key={order.id} style={{
+              animationDelay: `${index * 100}ms`
+            }}>
                     <PendingOrderCard order={order} />
-                  </div>
-                ))}
-              </div>
-            )}
+                  </div>)}
+              </div>}
           </CardContent>
         </Card>
 
@@ -367,32 +313,23 @@ export function Dashboard() {
                 {deliveryOrders.length}
               </Badge>
             </CardTitle>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => navigate('/admin/orders?filter=delivery')}
-            >
+            <Button variant="outline" size="sm" onClick={() => navigate('/admin/orders?filter=delivery')}>
               View All
             </Button>
           </CardHeader>
           <CardContent>
-            {deliveryOrders.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+            {deliveryOrders.length === 0 ? <div className="text-center py-8 text-muted-foreground">
                 <Truck className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>No pending delivery orders</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {deliveryOrders.map((order, index) => (
-                  <div key={order.id} style={{ animationDelay: `${index * 100}ms` }}>
+              </div> : <div className="space-y-4">
+                {deliveryOrders.map((order, index) => <div key={order.id} style={{
+              animationDelay: `${index * 100}ms`
+            }}>
                     <PendingOrderCard order={order} />
-                  </div>
-                ))}
-              </div>
-            )}
+                  </div>)}
+              </div>}
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 }
