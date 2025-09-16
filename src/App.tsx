@@ -5,20 +5,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/contexts/CartContext";
 import { CartSidebar } from "@/components/CartSidebar";
-import { Home } from "./pages/Home";
-import { Menu } from "./pages/Menu";
-import { OrderType } from "./pages/OrderType";
-import { TableBooking } from "./pages/TableBooking";
-import { RoomDelivery } from "./pages/RoomDelivery";
-import { Checkout } from "./pages/Checkout";
-import { OrderConfirmation } from "./pages/OrderConfirmation";
-import { OrderTracking } from "./pages/OrderTracking";
 import NotFound from "./pages/NotFound";
 import { AdminLayout } from "./pages/admin/AdminLayout";
 import { Dashboard } from "./pages/admin/Dashboard";
 import { MenuManagement } from "./pages/admin/MenuManagement";
 import { OrderManagement } from "./pages/admin/OrderManagement";
 import { Reports } from "./pages/admin/Reports";
+import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
@@ -30,14 +23,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/menu" element={<Menu />} />
-            <Route path="/order-type" element={<OrderType />} />
-            <Route path="/table-booking" element={<TableBooking />} />
-            <Route path="/room-delivery" element={<RoomDelivery />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/order-confirmation" element={<OrderConfirmation />} />
-            <Route path="/order-tracking" element={<OrderTracking />} />
+            <Route path="/" element={<Navigate to="/admin" replace />} />
             
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
@@ -47,9 +33,8 @@ const App = () => (
               <Route path="reports" element={<Reports />} />
             </Route>
             
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
-          <CartSidebar />
         </BrowserRouter>
       </CartProvider>
     </TooltipProvider>
